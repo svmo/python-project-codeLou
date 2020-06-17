@@ -117,20 +117,28 @@ class Recipe:
             setattr(self, key, value)
 login_lambda =   (lambda login: login())  
 
-menus = {'main':{'1': ['\n[1] Login.', {'action':login}],
+def menus(name):
+    if name == 'main':
+        return {'1': ['\n[1] Login.', {'action':login}],
           '2': ['[2] New user.', {'action':get_new_user}],
-          'q': ['[q] Quit.', {'action':quits}]},
-         'login':{'1': ['\n[1] New Recipe.', 'login'],
+          'q': ['[q] Quit.', {'action':quits}]}
+    elif name == 'login':
+         return {'1': ['\n[1] New Recipe.', 'login'],
           '2': ['[2] View Recipes.', 'get_new_user'],
           'q': ['[q] Quit.', 'quit']},
-         'scale':{'1': ['\n[1] Save Recipe.', 'login'],
+    elif name == 'scale':
+        {'1': ['\n[1] Save Recipe.', 'login'],
           '2': ['[2] Scale Recipe.', 'get_new_user'],
           'q': ['[q] Quit.', {'action':quits}]},
-         'select':{'1': ['\n[1] Select Recipe.', 'login'],
+    elif name == 'select':
+        {'1': ['\n[1] Select Recipe.', 'login'],
           'q': ['[q] Quit.', {'action':quits}]},
-         'edit':{'1': ['\n[1] Edit/Remove Recipe.', 'login'],
+    elif name == 'edit':
+         {'1': ['\n[1] Edit/Remove Recipe.', 'login'],
           '2': ['[2] Scale Recipe.', 'get_new_user'],
-          'q': ['[q] Quit.', {'action':quits}]}}      
+          'q': ['[q] Quit.', {'action':quits}]}   
+    else:
+        return print('\Error, %s not found' % name)
 
 
 ### MAIN PROGRAM ###   
