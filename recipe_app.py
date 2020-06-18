@@ -16,6 +16,7 @@ import pickle
 from pyfiglet import Figlet
 import time
 from recipe_scrapers import scrape_me
+import json
 
 '''
 TODO
@@ -38,10 +39,10 @@ def display_title_bar():
 def login():
    login_user = input("\nPlease enter your name: ") 
    display_title_bar()
-   if login_user in users:
+   if login_user in user_info.keys():
        print("\nWelcome back %s!" % login_user)
        return True
-   else:
+   if login_user not in key:
        print("Sorry, I don't recognize that name. Please return to the main menu.")
 
 def show_users():
@@ -54,23 +55,25 @@ def get_new_user():
      # Asks the user for a new name, and stores the name if we don't already
     #  know about this person.
     new_user = input("\nPlease enter your name: ")
-    if new_user in users:
-        print("\n%s is already a user. Please login" % new_user.title())
-    else:
-        users.append(new_user)
-        print("\nWelcome to the kitchen, %s!\n" % new_user.title())
+    for key, value in user_info.items():
+        if new_user in key:
+            print("\n%s is already a user. Please login" % new_user.title())
+        else:
+            user_info[new_user] = []
+            print(user_info)
+            print("\nWelcome to the kitchen, %s!\n" % new_user.title())
     
 def load_users():
     # This function loads names from a file, and puts them in the list 'names'.
     #  If the file doesn't exist, it creates an empty list.
     try:
-        file_object = open('recipe-app_users.pydata', 'rb')
-        names = pickle.load(file_object)
-        file_object.close()
+        with open('recipe_app_data.txt') as json_file:
+            names = json.load(json_file)
+        print(names)
         return names
     except Exception as e:
         print(e)
-        return []
+        return {}
 
 def add_new_recipe():
     URL = input('What is the recipe URL? ')
@@ -112,10 +115,9 @@ def select_recipe():
 def quits():
     # This function dumps the names into a file, and prints a quit message.
     try:
-        file_object = open('recipe-app_users.pydata', 'wb')
-        pickle.dump(users, file_object)
-        file_object.close()
-        print("\nHappy eating! Bye.")
+        with open('recipe_app_data.txt', 'w') as outfile:
+            json.dump(user_info, outfile)
+            print("\nHappy eating! Bye.")
     except Exception as e:
         print("\nUh oh looks like there's a fire in the kitchen.")
         print(e)
@@ -128,7 +130,21 @@ class Recipe:
         
         for key, value in kwargs.items():
             setattr(self, key, value)
-  
+
+# Create your dictionary class 
+#class user_dictionary(dict): 
+#  
+##    # __init__ function 
+##    def __init__(self): 
+##        self = dict() 
+#          
+#    # Function to add key:value 
+#    def add(self, key, value): 
+#        self[key] = value 
+#  
+## Main Function 
+#user_info = user_dictionary() 
+
 
 def menus(name):
     if name == 'main':
@@ -163,8 +179,12 @@ print("\nCreated by Sarah Morris, 2020.")
 time.sleep(2)
 
 debug = False
-  
-users = load_users()
+
+user_info = load_users()
+users = []
+
+for key, value in user_info.items():
+    users.append(key)
 
 choice = ''
 display_title_bar()
@@ -193,7 +213,7 @@ while choice != 'q':
              menu_select['b'][1]['action']()
         menu_location = (menu_select['b'][2])
     elif choice == 'q':
-        quit()
+        quits()
     else:
         print("\nI didn't understand that choice.\n")
         
