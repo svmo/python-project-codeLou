@@ -41,27 +41,21 @@ def login():
    display_title_bar()
    if login_user in user_info.keys():
        print("\nWelcome back %s!" % login_user)
-       return True
+       return login_user
    if login_user not in key:
        print("Sorry, I don't recognize that name. Please return to the main menu.")
-
-def show_users():
-    # Shows the names of everyone who is already in the list.
-    print("\nHere are the people I know.\n")
-    for name in users:
-        print(name.title()) # title() returns first char in each word as uppercase and rest as lowercase
         
 def get_new_user():
      # Asks the user for a new name, and stores the name if we don't already
     #  know about this person.
     new_user = input("\nPlease enter your name: ")
-    for key, value in user_info.items():
-        if new_user in key:
-            print("\n%s is already a user. Please login" % new_user.title())
-        else:
-            user_info[new_user] = []
+    if new_user in user_info.keys():
+        print("\n%s is already a user. Please login" % new_user.title())
+    else:
+        user_info[new_user] = []
+        if debug:
             print(user_info)
-            print("\nWelcome to the kitchen, %s!\n" % new_user.title())
+        print("\nWelcome to the kitchen, %s!\n" % new_user.title())
     
 def load_users():
     # This function loads names from a file, and puts them in the list 'names'.
@@ -79,17 +73,26 @@ def add_new_recipe():
     URL = input('What is the recipe URL? ')
     scraper = scrape_me(URL)
     display_title_bar()
+    ingredients = []
     print('\n**' + scraper.title()+'**\n')
     print('INGREDIENTS')
     for ingredient in scraper.ingredients():
+        ingredients.append(ingredient)
         print(ingredient)
     print('\nINSTRUCTIONS')
 #    for instructions in scraper.instructions():
     print(scraper.instructions())
+    recipe = {'title':scraper.title(),'ingredients':ingredients, 'instructions':scraper.instructions()}
+    if debug:
+        print(recipe.title)
+    choice = input('Would you like to save this recipe? (y/n) ')
+    if choice == 'y':
+        save_recipe(recipe)
     return True
     
-def save_recipe():
-    print('This is where the user will be able to save a recipe')
+def save_recipe(recipe):
+    print('Recipe ' + recipe['title'] + ' saved succesfully!')
+    user_info[current_user].append(recipe)
     return True
     
 def scale_recipe():
@@ -125,25 +128,13 @@ def quits():
 ### CLASSES ###
 
 class Recipe:
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, ingredients, instructions, **kwargs):
         self.name = name
+        self.ingredients = ingredients
+        self.instructions = ingredients
         
         for key, value in kwargs.items():
             setattr(self, key, value)
-
-# Create your dictionary class 
-#class user_dictionary(dict): 
-#  
-##    # __init__ function 
-##    def __init__(self): 
-##        self = dict() 
-#          
-#    # Function to add key:value 
-#    def add(self, key, value): 
-#        self[key] = value 
-#  
-## Main Function 
-#user_info = user_dictionary() 
 
 
 def menus(name):
@@ -181,12 +172,13 @@ time.sleep(2)
 debug = False
 
 user_info = load_users()
-users = []
-
-for key, value in user_info.items():
-    users.append(key)
+#users = []
+#
+#for key, value in user_info.items():
+#    users.append(key)
 
 choice = ''
+current_user = ''
 display_title_bar()
 menu_location = 'main'
 while choice != 'q':    
@@ -200,6 +192,10 @@ while choice != 'q':
     if choice == '1':
         var = menu_select['1'][1]['action']()
         if var:
+            if menu_location == 'main':
+                current_user = var
+                if debug:
+                    print(current_user)
             menu_location = (menu_select['1'][2])
         else:
             menu_location = 'main'
