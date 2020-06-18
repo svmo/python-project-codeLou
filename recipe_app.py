@@ -15,6 +15,7 @@ import os
 import pickle
 from pyfiglet import Figlet
 import time
+from recipe_scrapers import scrape_me
 
 '''
 TODO
@@ -34,37 +35,12 @@ def display_title_bar():
     print("\t***  Recipebook - Hello hungry friends!  ***")
     print("\t*********************************************")
     
-def main_menu():
-    # Let users know what they can do.
-    print("\n[1] Login.")
-    print("[2] New user.")
-    print("[q] Quit.")
-    
-    return input("What would you like to do? ")
-    
-def login_menu():
-    print("\n[1] View saved recipes.")
-    print("[2] Add a recipe.")
-    print("[q] Quit.")
-
-    return input("What would you like to do? ")
-
 def login():
    login_user = input("\nPlease enter your name: ") 
-#   selection = ''
+   display_title_bar()
    if login_user in users:
        print("\nWelcome back %s!" % login_user)
-#       selection = login_menu()
-#       display_title_bar()
-#       if selection == '1':
-#           print("Here is a list of your saved recipes.")
-#       elif selection == '2':
-#           recipe_url = input("Please enter recipe URL: ")
-#           print(recipe_url)
-#       elif selection == 'q':
-#           quit()
-#       else:
-#           print("\nI didn't understand that choice.\n")
+       return True
    else:
        print("Sorry, I don't recognize that name. Please return to the main menu.")
 
@@ -96,6 +72,43 @@ def load_users():
         print(e)
         return []
 
+def add_new_recipe():
+    URL = input('What is the recipe URL? ')
+    scraper = scrape_me(URL)
+    display_title_bar()
+    print('\n**' + scraper.title()+'**\n')
+    print('INGREDIENTS')
+    for ingredient in scraper.ingredients():
+        print(ingredient)
+    print('\nINSTRUCTIONS')
+#    for instructions in scraper.instructions():
+    print(scraper.instructions())
+    return True
+    
+def save_recipe():
+    print('This is where the user will be able to save a recipe')
+    return True
+    
+def scale_recipe():
+    print('This is where a user will be able to scale a recipe')
+    return True
+    
+def edit_recipe():
+    print('A user will be able to edit their recipe, maybe')
+    return True
+    
+def delete_recipe():
+    print('Delete recipes here')
+    return True
+    
+def show_recipe_list():
+    print('Show what recipes a user has, maybe select recipe too')
+    return True
+    
+def select_recipe():
+    print('User can select a recipe')
+    return True
+
 def quits():
     # This function dumps the names into a file, and prints a quit message.
     try:
@@ -115,28 +128,28 @@ class Recipe:
         
         for key, value in kwargs.items():
             setattr(self, key, value)
-login_lambda =   (lambda login: login())  
+  
 
 def menus(name):
     if name == 'main':
-        return {'1': ['\n[1] Login.', {'action':login}],
-          '2': ['[2] New user.', {'action':get_new_user}],
-          'q': ['[q] Quit.', {'action':quits}]}
+        return {'1': ['\n[1] Login.', {'action':login}, 'login'],
+                '2': ['[2] New user.', {'action':get_new_user}, 'main'],
+                'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'login':
-         return {'1': ['\n[1] New Recipe.', 'login'],
-          '2': ['[2] View Recipes.', 'get_new_user'],
-          'q': ['[q] Quit.', 'quit']},
+         return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'scale'],
+                 '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'select'],
+                 'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'scale':
-        {'1': ['\n[1] Save Recipe.', 'login'],
-          '2': ['[2] Scale Recipe.', 'get_new_user'],
-          'q': ['[q] Quit.', {'action':quits}]},
+        return {'1': ['\n[1] Save Recipe.',{'action':save_recipe}, 'scale'],
+                '2': ['[2] Scale Recipe.',{'action':scale_recipe}, 'scale'],
+                'b': ['[b] Back.', {'action':False}, 'login']}
     elif name == 'select':
-        {'1': ['\n[1] Select Recipe.', 'login'],
-          'q': ['[q] Quit.', {'action':quits}]},
+        return {'1': ['\n[1] Select Recipe.',{'action':select_recipe}, 'scale'],
+                'b': ['[b] Back.', {'action':False}, 'login']}
     elif name == 'edit':
-         {'1': ['\n[1] Edit/Remove Recipe.', 'login'],
-          '2': ['[2] Scale Recipe.', 'get_new_user'],
-          'q': ['[q] Quit.', {'action':quits}]}   
+         return {'1': ['\n[1] Edit Recipe.',{'action':edit_recipe}, 'edit'],
+                 '2': ['[2] Remove recipe.', {'action':delete_recipe}, 'edit'],
+                 'b': ['[b] Back.', {'action':False}, 'login']}   
     else:
         return print('\Error, %s not found' % name)
 
@@ -148,28 +161,37 @@ f = Figlet(font='slant')
 print(f.renderText('Recipebook'))
 print("\nCreated by Sarah Morris, 2020.")
 time.sleep(2)
+
+debug = False
   
 users = load_users()
 
 choice = ''
 display_title_bar()
-menu_location = 0
+menu_location = 'main'
 while choice != 'q':    
     # Let users know what they can do.
-    for key, value in menus['main'].items():
+    menu_select = menus(menu_location)
+    for key, value in menu_select.items():
         print(value[0])
     choice = input("What would you like to do? ")
     # Respond to the user's choice.
     display_title_bar()
     if choice == '1':
-        print(menus['main']['1'][1]['action']())
-        menus[menu_location]['1'][1]
-        if menu_location >= len(menus):
-            menu_location = 0
+        var = menu_select['1'][1]['action']()
+        if var:
+            menu_location = (menu_select['1'][2])
         else:
-            menu_location += 1
+            menu_location = 'main'
+        if debug:
+            print(menu_location)
     elif choice == '2':
-        print(menus[menu_location]['2'][1]['action']())
+        menu_select['2'][1]['action']()
+        menu_location = (menu_select['2'][2])
+    elif choice == 'b':
+        if menu_select['b'][1]['action']:
+             menu_select['b'][1]['action']()
+        menu_location = (menu_select['b'][2])
     elif choice == 'q':
         quit()
     else:
