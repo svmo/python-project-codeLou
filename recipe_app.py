@@ -89,6 +89,17 @@ def add_new_recipe():
     if choice == 'y':
         save_recipe(recipe)
     return True
+
+def display_recipe(recipe):
+    display_title_bar()
+    title = recipe['title']
+    print('\n**' + title+'**\n')
+    print('INGREDIENTS')
+    for ingredient in recipe['ingredients']:
+        print(ingredient)
+    print('\nINSTRUCTIONS')
+    print(recipe['instructions'])
+    
     
 def save_recipe(recipe):
     print('Recipe ' + recipe['title'] + ' saved succesfully!')
@@ -108,7 +119,15 @@ def delete_recipe():
     return True
     
 def show_recipe_list():
-    print('Show what recipes a user has, maybe select recipe too')
+    if debug:
+        print('Show what recipes a user has, maybe select recipe too')
+    for idx, value in enumerate(user_info[current_user]):
+        print('[{}] {}'.format(idx+1, value['title']))
+    choice = input('Please select a recipe: ')
+    if int(choice) <= len(user_info[current_user]):
+        display_recipe(user_info[current_user][int(choice) - 1])
+    else:
+        print('That is not a valid selection.')
     return True
     
 def select_recipe():
@@ -144,7 +163,7 @@ def menus(name):
                 'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'login':
          return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'scale'],
-                 '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'select'],
+                 '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'scale'],
                  'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'scale':
         return {'1': ['\n[1] Save Recipe.',{'action':save_recipe}, 'scale'],
