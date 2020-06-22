@@ -21,9 +21,13 @@ import json
 '''
 TODO
 
-[] login screen
-[] main menu
-[] recipe class
++ scale recipes
+    [] regex for getting numbers
+    [] how to pass in recipe
+[] regex for url
+[] regex for user name
+[] delete recipes
+
 '''
 
 ### FUNCTIONS ###
@@ -75,6 +79,7 @@ def add_new_recipe():
     display_title_bar()
     ingredients = []
     print('\n**' + scraper.title()+'**\n')
+    print("Yields: {}\n".format(scraper.yields()))
     print('INGREDIENTS')
     for ingredient in scraper.ingredients():
         ingredients.append(ingredient)
@@ -85,7 +90,7 @@ def add_new_recipe():
     recipe = {'title':scraper.title(),'ingredients':ingredients, 'instructions':scraper.instructions()}
     if debug:
         print(recipe.title)
-    choice = input('Would you like to save this recipe? (y/n) ')
+    choice = input('\nWould you like to save this recipe? (y/n) ')
     if choice == 'y':
         save_recipe(recipe)
     return True
@@ -100,13 +105,21 @@ def display_recipe(recipe):
     print('\nINSTRUCTIONS')
     print(recipe['instructions'])
     
-    
 def save_recipe(recipe):
-    print('Recipe ' + recipe['title'] + ' saved succesfully!')
+    print('\nRecipe ' + recipe['title'] + ' saved succesfully!')
     user_info[current_user].append(recipe)
-    return True
+    return recipe
     
-def scale_recipe():
+def scale_recipe(recipe):
+    display_title_bar()
+    print('\n[1] Half the recipe')
+    print('[2] Double the recipe')
+
+    choice = input('How would you like to scale the recipe? ')
+    if choice == '1':
+        print(recipe['title'] + ' scaled by half')
+    if choice == '2':
+        print(recipe['title'] + ' doubled')
     print('This is where a user will be able to scale a recipe')
     return True
     
@@ -125,14 +138,21 @@ def show_recipe_list():
         print('[{}] {}'.format(idx+1, value['title']))
     choice = input('Please select a recipe: ')
     if int(choice) <= len(user_info[current_user]):
+        recipe = user_info[current_user][int(choice) - 1]
         display_recipe(user_info[current_user][int(choice) - 1])
     else:
         print('That is not a valid selection.')
-    return True
+    print('\n[1] Scale Recipe.')
+    print('[2] Delete Recipe.')
+    print('[b] Back.')
+    choice = input("What would you like to do? ")
+    if choice == '1':
+        scale_recipe(recipe)
+    elif choice == '2':
+        delete_recipe(recipe)
+    elif choice == 'b':
+        return recipe
     
-def select_recipe():
-    print('User can select a recipe')
-    return True
 
 def quits():
     # This function dumps the names into a file, and prints a quit message.
@@ -157,21 +177,18 @@ class Recipe:
 
 
 def menus(name):
-    if name == 'main':
-        return {'1': ['\n[1] Login.', {'action':login}, 'login'],
-                '2': ['[2] New user.', {'action':get_new_user}, 'main'],
+    if name == 'login':
+        return {'1': ['\n[1] Login.', {'action':login}, 'main'],
+                '2': ['[2] New user.', {'action':get_new_user}, 'login'],
                 'q': ['[q] Quit.', {'action':quits}]}
-    elif name == 'login':
+    elif name == 'main':
          return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'scale'],
                  '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'scale'],
                  'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'scale':
-        return {'1': ['\n[1] Save Recipe.',{'action':save_recipe}, 'scale'],
-                '2': ['[2] Scale Recipe.',{'action':scale_recipe}, 'scale'],
-                'b': ['[b] Back.', {'action':False}, 'login']}
-    elif name == 'select':
-        return {'1': ['\n[1] Select Recipe.',{'action':select_recipe}, 'scale'],
-                'b': ['[b] Back.', {'action':False}, 'login']}
+        return {'1': ['\n[1] Scale Recipe.',{'action':scale_recipe}, 'main'],
+                '2': ['[2] Delete Recipe.',{'action':delete_recipe}, 'main'],
+                'b': ['[b] Back.', {'action':False}, 'main']}
     elif name == 'edit':
          return {'1': ['\n[1] Edit Recipe.',{'action':edit_recipe}, 'edit'],
                  '2': ['[2] Remove recipe.', {'action':delete_recipe}, 'edit'],
@@ -199,7 +216,8 @@ user_info = load_users()
 choice = ''
 current_user = ''
 display_title_bar()
-menu_location = 'main'
+menu_location = 'login'
+current_recipe = ''
 while choice != 'q':    
     # Let users know what they can do.
     menu_select = menus(menu_location)
@@ -211,13 +229,17 @@ while choice != 'q':
     if choice == '1':
         var = menu_select['1'][1]['action']()
         if var:
-            if menu_location == 'main':
+            if menu_location == 'login':
                 current_user = var
                 if debug:
                     print(current_user)
+#            elif menu_location == 'login' or menu_location == 'scale' or menu_location == 'select':
+#                current_recipe = var
+#                if debug:
+#                    print(current_recipe)
             menu_location = (menu_select['1'][2])
         else:
-            menu_location = 'main'
+            menu_location = 'login'
         if debug:
             print(menu_location)
     elif choice == '2':
