@@ -76,6 +76,7 @@ def load_users():
 
 def add_new_recipe():
     #  this function adds new recipes via a URL and displays the recipe
+    print("Try this URL if you need inspiration: https://www.allrecipes.com/recipe/8499/basic-chicken-salad\n")
     URL = input('What is the recipe URL? ')
     try:
         scraper = scrape_me(URL)
@@ -96,6 +97,7 @@ def add_new_recipe():
         choice = input('\nWould you like to save this recipe? (y/n) ')
         if choice == 'y':
             save_recipe(recipe)
+        display_title_bar()
         return True
     except:
         print("That website is not supported, please try again.")
@@ -161,6 +163,7 @@ def show_recipe_list():
         if choice == '1':
             delete_recipe()
         elif choice == 'b':
+            display_title_bar()
             return recipe
     else:
         print("Please add a recipe first.")
@@ -178,13 +181,12 @@ def quits():
         print(e)
         
 def menus(name):
-    display_title_bar()
     if name == 'login':
         return {'1': ['\n[1] Login.', {'action':login}, 'main'],
                 '2': ['[2] New user.', {'action':get_new_user}, 'login'],
                 'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'main':
-         return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'scale'],
+         return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'main'],
                  '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'main'],
                  'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'scale':
