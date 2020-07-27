@@ -154,14 +154,11 @@ def show_recipe_list():
             display_recipe(user_info[current_user][int(choice) - 1])
         else:
             print('That is not a valid selection.')
-        print('\n[1] Scale Recipe.')
-        print('[2] Delete Recipe.')
+        print('\n[1] Delete Recipe.')
         print('[b] Back.')
         print('[q] Quit.')
         choice = input("What would you like to do? ")
         if choice == '1':
-            scale_recipe(recipe)
-        elif choice == '2':
             delete_recipe()
         elif choice == 'b':
             return recipe
@@ -181,17 +178,17 @@ def quits():
         print(e)
         
 def menus(name):
+    display_title_bar()
     if name == 'login':
         return {'1': ['\n[1] Login.', {'action':login}, 'main'],
                 '2': ['[2] New user.', {'action':get_new_user}, 'login'],
                 'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'main':
          return {'1': ['\n[1] New Recipe.', {'action':add_new_recipe}, 'scale'],
-                 '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'scale'],
+                 '2': ['[2] View Recipes.',{'action':show_recipe_list}, 'main'],
                  'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'scale':
-        return {'1': ['\n[1] Scale Recipe.',{'action':scale_recipe}, 'main'],
-                '2': ['[2] Delete Recipe.',{'action':delete_recipe}, 'main'],
+        return {'1': ['\n[1] Delete Recipe.',{'action':delete_recipe}, 'main'],
                 'b': ['[b] Back.', {'action':False}, 'main'],
                 'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'edit':
