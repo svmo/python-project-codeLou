@@ -30,7 +30,7 @@ The program can be run by cloning the repo. Once downloaded, navigate to the fol
    * show_recipe_list() shows all recipes a user has saved and lets the user select one
    * scale_recipe() has not been implemented but would allow the user to scale a given recipe
 
-## Project ideas:
+## Future project ideas:
 * Command line recipe program that will auto half a recipe
   * master loop app
   * conversion app
