@@ -12,7 +12,7 @@ Note: Recipe scaling has not been implemented in this release.
 ## Requirements
 The following libraries must be installed to use this repo:
 * [pyfiglet](https://pypi.org/project/pyfiglet/0.7/)
-    * pip install pyfiglet
+    * pip install pyfiglet==0.7
 * [recipe_scrapers](https://github.com/hhursev/recipe-scrapers) 
     * pip install recipe-scrapers
 * os
