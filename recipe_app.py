@@ -12,7 +12,6 @@ Recipe app
 code modified from http://introtopython.org/terminal_apps.html accessed 6/15/2020
 """
 import os
-import pickle
 from pyfiglet import Figlet
 import time
 from recipe_scrapers import scrape_me
@@ -41,7 +40,8 @@ def display_title_bar():
     print("\t*********************************************")
     
 def login():
-   login_user = input("\nPlease enter your name: ") 
+    #  asks for login information
+   login_user = input("\nPlease enter your name: ").capitalize()
    display_title_bar()
    if login_user in user_info.keys():
        print("\nWelcome back %s!" % login_user)
@@ -52,13 +52,14 @@ def login():
 def get_new_user():
      # Asks the user for a new name, and stores the name if we don't already
     #  know about this person.
-    new_user = input("\nPlease enter your name: ")
+    new_user = input("\nPlease enter your name: ").capitalize()
     if new_user in user_info.keys():
         print("\n%s is already a user. Please login" % new_user.title())
     else:
         user_info[new_user] = []
         if debug:
             print(user_info)
+        display_title_bar()
         print("\nWelcome to the kitchen, %s!\n" % new_user.title())
     
 def load_users():
@@ -74,28 +75,34 @@ def load_users():
         return {}
 
 def add_new_recipe():
+    #  this function adds new recipes via a URL and displays the recipe
     URL = input('What is the recipe URL? ')
-    scraper = scrape_me(URL)
-    display_title_bar()
-    ingredients = []
-    print('\n**' + scraper.title()+'**\n')
-    print("Yields: {}\n".format(scraper.yields()))
-    print('INGREDIENTS')
-    for ingredient in scraper.ingredients():
-        ingredients.append(ingredient)
-        print(ingredient)
-    print('\nINSTRUCTIONS')
-#    for instructions in scraper.instructions():
-    print(scraper.instructions())
-    recipe = {'title':scraper.title(),'ingredients':ingredients, 'instructions':scraper.instructions()}
-    if debug:
-        print(recipe.title)
-    choice = input('\nWould you like to save this recipe? (y/n) ')
-    if choice == 'y':
-        save_recipe(recipe)
-    return True
+    try:
+        scraper = scrape_me(URL)
+        display_title_bar()
+        ingredients = []
+        print('\n**' + scraper.title()+'**\n')
+        print("Yields: {}\n".format(scraper.yields()))
+        print('INGREDIENTS')
+        for ingredient in scraper.ingredients():
+            ingredients.append(ingredient)
+            print(ingredient)
+        print('\nINSTRUCTIONS')
+    #    for instructions in scraper.instructions():
+        print(scraper.instructions())
+        recipe = {'title':scraper.title(),'ingredients':ingredients, 'instructions':scraper.instructions()}
+        if debug:
+            print(recipe.title)
+        choice = input('\nWould you like to save this recipe? (y/n) ')
+        if choice == 'y':
+            save_recipe(recipe)
+        return True
+    except:
+        print("That website is not supported, please try again.")
+        return True
 
 def display_recipe(recipe):
+    #  this function displays the recipe
     display_title_bar()
     title = recipe['title']
     print('\n**' + title+'**\n')
@@ -106,6 +113,7 @@ def display_recipe(recipe):
     print(recipe['instructions'])
     
 def save_recipe(recipe):
+    # this function saves the recipe
     print('\nRecipe ' + recipe['title'] + ' saved succesfully!')
     user_info[current_user].append(recipe)
     return recipe
@@ -120,6 +128,7 @@ def scale_recipe(recipe):
         print(recipe['title'] + ' scaled by half')
     if choice == '2':
         print(recipe['title'] + ' doubled')
+    display_title_bar()
     print('This is where a user will be able to scale a recipe')
     return True
     
@@ -128,30 +137,37 @@ def edit_recipe():
     return True
     
 def delete_recipe():
+    display_title_bar()
     print('Delete recipes here')
     return True
     
 def show_recipe_list():
+    # this function shows the list of recipes a user has saved
     if debug:
         print('Show what recipes a user has, maybe select recipe too')
     for idx, value in enumerate(user_info[current_user]):
         print('[{}] {}'.format(idx+1, value['title']))
-    choice = input('Please select a recipe: ')
-    if int(choice) <= len(user_info[current_user]):
-        recipe = user_info[current_user][int(choice) - 1]
-        display_recipe(user_info[current_user][int(choice) - 1])
+    if len(user_info[current_user]) > 0:
+        choice = input('Please select a recipe: ')
+        if int(choice) <= len(user_info[current_user]):
+            recipe = user_info[current_user][int(choice) - 1]
+            display_recipe(user_info[current_user][int(choice) - 1])
+        else:
+            print('That is not a valid selection.')
+        print('\n[1] Scale Recipe.')
+        print('[2] Delete Recipe.')
+        print('[b] Back.')
+        print('[q] Quit.')
+        choice = input("What would you like to do? ")
+        if choice == '1':
+            scale_recipe(recipe)
+        elif choice == '2':
+            delete_recipe()
+        elif choice == 'b':
+            return recipe
     else:
-        print('That is not a valid selection.')
-    print('\n[1] Scale Recipe.')
-    print('[2] Delete Recipe.')
-    print('[b] Back.')
-    choice = input("What would you like to do? ")
-    if choice == '1':
-        scale_recipe(recipe)
-    elif choice == '2':
-        delete_recipe(recipe)
-    elif choice == 'b':
-        return recipe
+        print("Please add a recipe first.")
+        return True
     
 
 def quits():
@@ -164,18 +180,6 @@ def quits():
         print("\nUh oh looks like there's a fire in the kitchen.")
         print(e)
         
-### CLASSES ###
-
-class Recipe:
-    def __init__(self, name, ingredients, instructions, **kwargs):
-        self.name = name
-        self.ingredients = ingredients
-        self.instructions = ingredients
-        
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-
 def menus(name):
     if name == 'login':
         return {'1': ['\n[1] Login.', {'action':login}, 'main'],
@@ -188,14 +192,28 @@ def menus(name):
     elif name == 'scale':
         return {'1': ['\n[1] Scale Recipe.',{'action':scale_recipe}, 'main'],
                 '2': ['[2] Delete Recipe.',{'action':delete_recipe}, 'main'],
-                'b': ['[b] Back.', {'action':False}, 'main']}
+                'b': ['[b] Back.', {'action':False}, 'main'],
+                'q': ['[q] Quit.', {'action':quits}]}
     elif name == 'edit':
          return {'1': ['\n[1] Edit Recipe.',{'action':edit_recipe}, 'edit'],
                  '2': ['[2] Remove recipe.', {'action':delete_recipe}, 'edit'],
-                 'b': ['[b] Back.', {'action':False}, 'login']}   
+                 'b': ['[b] Back.', {'action':False}, 'login'],
+                 'q': ['[q] Quit.', {'action':quits}]}   
     else:
         return print('\Error, %s not found' % name)
+        
+### CLASSES ###
 
+# this class is unused
+        
+class Recipe:
+    def __init__(self, name, ingredients, instructions, **kwargs):
+        self.name = name
+        self.ingredients = ingredients
+        self.instructions = ingredients
+        
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 ### MAIN PROGRAM ###   
             
