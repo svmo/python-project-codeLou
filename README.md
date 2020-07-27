@@ -4,7 +4,7 @@ Repo for my python project for Code Louisville 2020
 ## What is it
 This program allows users to create their own cookbook. Once you have a login name, the program will allow the user to import recipes using a URL.
 
-Note: Recipe scaling has not been implemented in this release.
+Note: Delete recipe has not been implemented in this release. The option is in the menu but has no functionality.
 
 ## Technical Summary
 * Python
