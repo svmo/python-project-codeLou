@@ -33,7 +33,10 @@ TODO
 
 def display_title_bar():
     # Clears the terminal screen, and displays a title bar.
-    os.system('cls')
+    if os.name == "nt":
+        os.system('cls')
+    else: 
+        os.system('clear')
               
     print("\t*********************************************")
     print("\t***  Recipebook - Hello hungry friends!  ***")
@@ -66,7 +69,7 @@ def load_users():
     # This function loads names from a file, and puts them in the list 'names'.
     #  If the file doesn't exist, it creates an empty list.
     try:
-        with open('recipe_app_data.txt') as json_file:
+        with open('recipe_app_data.json') as json_file:
             names = json.load(json_file)
         print(names)
         return names
@@ -97,7 +100,6 @@ def add_new_recipe():
         choice = input('\nWould you like to save this recipe? (y/n) ')
         if choice == 'y':
             save_recipe(recipe)
-        display_title_bar()
         return True
     except:
         print("That website is not supported, please try again.")
@@ -173,7 +175,7 @@ def show_recipe_list():
 def quits():
     # This function dumps the names into a file, and prints a quit message.
     try:
-        with open('recipe_app_data.txt', 'w') as outfile:
+        with open('recipe_app_data.json', 'w') as outfile:
             json.dump(user_info, outfile)
             print("\nHappy eating! Bye.")
     except Exception as e:
